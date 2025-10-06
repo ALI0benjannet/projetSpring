@@ -1,13 +1,12 @@
 package org.esprim.gestionfoyer.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Set;
 
 @Entity
 @Getter
@@ -20,4 +19,10 @@ public class Foyer {
     private Long idFoyer;
     private String nomFoyer;
     private Long capaciteFoer;
+
+    @OneToOne(mappedBy= "foyer")
+    private Foyer foye;
+
+    @OneToMany(cascade = CascadeType.ALL,mappedBy = "foyer")
+    private Set<Bloc>blocs;
 }

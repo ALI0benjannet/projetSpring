@@ -1,15 +1,14 @@
 package org.esprim.gestionfoyer.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.*;
 
 import java.util.Date;
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -24,5 +23,7 @@ public class Etudiant {
     private Long cin;
     private String ecole;
     private Date dateNaissance;
+    @ManyToMany(mappedBy="etudiants", cascade = CascadeType.ALL)
+    private Set<Reservation> reservations ;
 }
 

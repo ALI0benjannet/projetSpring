@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.annotation.processing.Generated;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -20,6 +21,7 @@ public class Chambre {
     private Long numerochambre;
     @Enumerated(EnumType.STRING)
     private TypeChambre typeC;
-
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Reservation> reservations;
 
 }
