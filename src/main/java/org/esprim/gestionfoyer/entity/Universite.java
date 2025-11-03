@@ -18,5 +18,6 @@ public class Universite {
     private String nomUniversite;
     private String adresse;
     @OneToOne
+    @JoinColumn(name = "id_foyer")
     private Foyer foyer;
 }

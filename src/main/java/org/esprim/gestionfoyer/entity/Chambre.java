@@ -21,6 +21,9 @@ public class Chambre {
     private Long numerochambre;
     @Enumerated(EnumType.STRING)
     private TypeChambre typeC;
+    @ManyToOne
+    @JoinColumn(name = "id_bloc")
+    private Bloc bloc;
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Reservation> reservations;
 

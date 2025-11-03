@@ -21,7 +21,7 @@ public class Foyer {
     private Long capaciteFoer;
 
     @OneToOne(mappedBy= "foyer")
-    private Foyer foye;
+    private Foyer foyer;
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "foyer")
     private Set<Bloc>blocs;

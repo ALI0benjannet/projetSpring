@@ -20,6 +20,7 @@ public class Bloc {
     private String nomBloc;
     private Long capaciteBloc;
     @ManyToOne
+    @JoinColumn(name = "id_foyer")
     private Foyer foyer;
     @OneToMany(cascade = CascadeType.ALL,mappedBy ="bloc " )
     private Set<Chambre> chambres;
