@@ -1,6 +1,7 @@
 package org.esprim.gestionfoyer.services;
 
 import org.esprim.gestionfoyer.entity.Foyer;
+import org.esprim.gestionfoyer.entity.Universite;
 
 import java.util.List;
 
@@ -15,4 +16,5 @@ public interface FoyerService {
     Foyer updateFoyer(Foyer foyer);
 
     void removeFoyer(Long idFoyer);
+
 }
