@@ -22,7 +22,7 @@ public class Bloc {
     @ManyToOne
     @JoinColumn(name = "id_foyer")
     private Foyer foyer;
-    @OneToMany(cascade = CascadeType.ALL,mappedBy ="bloc " )
+    @OneToMany(cascade = CascadeType.ALL,mappedBy ="bloc" )
     private Set<Chambre> chambres;
 }
 
