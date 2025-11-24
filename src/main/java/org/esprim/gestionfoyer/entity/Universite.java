@@ -21,3 +21,5 @@ public class Universite {
     @JoinColumn(name = "id_foyer")
     private Foyer foyer;
 }
+
+
