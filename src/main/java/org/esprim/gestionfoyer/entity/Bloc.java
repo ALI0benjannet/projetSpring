@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,7 +25,7 @@ public class Bloc {
     @JoinColumn(name = "id_foyer")
     private Foyer foyer;
     @OneToMany(cascade = CascadeType.ALL,mappedBy ="bloc" )
-    private Set<Chambre> chambres;
+    private List<Chambre> chambres = new ArrayList<>();
 }
 
 

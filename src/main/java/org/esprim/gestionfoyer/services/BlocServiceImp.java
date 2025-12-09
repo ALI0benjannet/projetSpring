@@ -1,74 +1,105 @@
 package org.esprim.gestionfoyer.services;
 
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.esprim.gestionfoyer.entity.Bloc;
 import org.esprim.gestionfoyer.entity.Chambre;
 import org.esprim.gestionfoyer.repositories.BlocRepositorys;
 import org.esprim.gestionfoyer.repositories.ChambreRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+@Slf4j
 @Service
-@AllArgsConstructor
 public class BlocServiceImp implements BlocService {
 
+    @Autowired
     private BlocRepositorys blocRepository;
+
+    @Autowired
     private ChambreRepository chambreRepository;
 
     @Override
     public List<Bloc> retrieveAllBlocs() {
-        return List.of();
+        return blocRepository.findAll();
     }
 
     @Override
     public Bloc retrieveBloc(Long idBloc) {
-        return null;
+        return blocRepository.findById(idBloc)
+                .orElseThrow(() -> new RuntimeException(
+                        "Bloc not found with id : " + idBloc));
     }
 
     @Override
     public Bloc addBloc(Bloc bloc) {
-        return null;
+        return blocRepository.save(bloc);
     }
 
     @Override
     public Bloc updateBloc(Bloc bloc) {
-        return null;
+        return blocRepository.save(bloc);
     }
 
     @Override
     public void removeBloc(Long idBloc) {
-
+        blocRepository.deleteById(idBloc);
     }
 
     @Override
-    public Bloc affecterChambresABloc(List<Long> numerochambre, Long idBloc) {
-        // 1. Récupérer le bloc
-        Bloc bloc = blocRepository.findById(idBloc)
-                .orElseThrow(() -> new RuntimeException("Bloc non trouvé"));
+    public Bloc affecterChambresABloc(List<Long> numChambre, Long idBloc) {
+        return null;
+    }
 
-        // 2. Récupérer toutes les chambres correspondant aux numéros
-        List<Chambre> chambres = chambreRepository.findAllByNombreChambreIn(numerochambre);
-        if (chambres.size() != numerochambre.size()) {
-            throw new RuntimeException("Une ou plusieurs chambres sont introuvables.");
+    @Override
+    public Bloc affecterChambreABloc(List<Long> numeroChambre, Long idBloc) {
+
+        // Récupérer le bloc
+        Bloc bloc = blocRepository.findById(idBloc)
+                .orElseThrow(() -> new RuntimeException(
+                        "Bloc introuvable avec cet id : " + idBloc));
+
+        // Récupérer les chambres via leurs numéros
+        List<Chambre> chambres =
+                chambreRepository.findAllByNumeroChambreIn(numeroChambre);
+
+        if (chambres.size() != numeroChambre.size()) {
+            throw new RuntimeException("Une ou plusieurs chambres sont introuvables");
         }
 
-        // 3. Associer chaque chambre au bloc et l'ajouter à l'ensemble du bloc
+
+        //Affecter chaque chambre au bloc
         for (Chambre chambre : chambres) {
-            // Vérifier si la chambre est déjà affectée à un autre bloc
-            if (chambre.getBloc() != null && !chambre.getBloc().getIdBloc().equals(idBloc)) {
+
+            if (chambre.getBloc() != null) {
                 throw new RuntimeException(
-                        "La chambre " + chambre.getNumerochambre() + " est déjà affectée à un autre bloc."
-                );
+                        "La chambre numéro " + chambre.getNumerochambre()
+                                + " appartient déjà au bloc : "
+                                + chambre.getBloc().getNomBloc());
             }
 
-            // Associer la chambre au bloc
             chambre.setBloc(bloc);
-
-            // Ajouter la chambre à l'ensemble du bloc
-            bloc.getChambres().add(chambre);
         }
 
-        return blocRepository.save(bloc);
+
+        //Sauvegarder les chambres modifiées
+        chambreRepository.saveAll(chambres);
+
+        //Retourner le bloc mis à jour
+        return bloc;
+    }
+    @Scheduled(cron = "0 * * * * *")  // toutes les minutes
+    public void listeChambresParBloc() {
+
+        List<Bloc> blocs = blocRepository.findAll();
+
+        if (!blocs.isEmpty()) {
+            for (Bloc bloc : blocs) {
+                log.info("Bloc => " + bloc.getNomBloc() +
+                        " ayant une capacité " + bloc.getCapaciteBloc());
+            }
+        }
     }
 
 }

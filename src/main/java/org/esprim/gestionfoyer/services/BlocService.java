@@ -11,4 +11,6 @@ public interface BlocService {
         Bloc updateBloc(Bloc bloc);
         void removeBloc(Long idBloc);
         Bloc affecterChambresABloc(List<Long> numChambre,Long idBloc);
+
+        Bloc affecterChambreABloc(List<Long> numeroChambre, Long idBloc);
 }
