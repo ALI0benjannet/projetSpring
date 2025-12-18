@@ -21,40 +21,44 @@ public class ChambreServiceImp implements ChambreService {
         this.chambreRepository = chambreRepository;
     }
 
+    // ================= CRUD =================
+
     @Override
     public List<Chambre> retrieveAllChambres() {
-        return List.of();
+        return chambreRepository.findAll();
     }
 
     @Override
     public Chambre retrieveChambre(long idchambre) {
-        return null;
+        return chambreRepository.findById(idchambre).orElse(null);
     }
 
     @Override
     public Chambre retrieveChambre(Long idchambre) {
-        return null;
+        return chambreRepository.findById(idchambre).orElse(null);
     }
 
     @Override
     public Chambre addChambre(Chambre c) {
-        return null;
+        return chambreRepository.save(c);
     }
 
     @Override
     public void removeChambre(Long idchambre) {
-
+        chambreRepository.deleteById(idchambre);
     }
 
     @Override
     public Chambre modifyChambre(Chambre chambre) {
-        return null;
+        return chambreRepository.save(chambre);
     }
 
     @Override
     public Chambre updateChambre(Chambre c) {
-        return null;
+        return chambreRepository.save(c);
     }
+
+    // ================= MÉTHODES MÉTIER =================
 
     @Override
     public List<Chambre> getChambresParNomUniversite(String nomUniversite) {
@@ -63,7 +67,7 @@ public class ChambreServiceImp implements ChambreService {
 
     @Override
     public List<Chambre> getChambresParBlocEtType(Long idBloc, TypeChambre typeC) {
-        return List.of();
+        return chambreRepository.trouverChambresByBlocAndType(idBloc, typeC);
     }
 
     @Override
@@ -71,36 +75,71 @@ public class ChambreServiceImp implements ChambreService {
         return chambreRepository.trouverChambresByBlocAndType(idBloc, typeC);
     }
 
+    // ================= SERVICE 03 =================
 
+    @Scheduled(fixedRate = 300000) // toutes les 5 minutes
     @Override
     public void nbPlacesDisponibleParChambreAnneeEnCours() {
 
+        List<Chambre> chambres = chambreRepository.findAll();
+
+        for (Chambre chambre : chambres) {
+
+            int capaciteMax = getCapacite(chambre.getTypeC());
+            int placesOccupees = chambre.getReservations().size();
+            int placesDispo = capaciteMax - placesOccupees;
+
+            if (placesDispo <= 0) {
+                log.info("La chambre {} {} est complète",
+                        chambre.getTypeC(),
+                        chambre.getNumerochambre());
+            } else {
+                log.info("Le nombre de place disponible pour la chambre {} {} est {}",
+                        chambre.getTypeC(),
+                        chambre.getNumerochambre(),
+                        placesDispo);
+            }
+        }
     }
+
+    // ================= AUTRE SERVICE =================
 
     @Scheduled(cron = "0/15 * * * * *")
     public void pourcentageChambreParTypeChambre() {
-        List<Chambre> chambres = chambreRepository.findAll();
 
+        List<Chambre> chambres = chambreRepository.findAll();
         int totalChambres = chambres.size();
-        log.info("Nombre totale des chambres: "+ totalChambres);
+
+        log.info("Nombre total des chambres : {}", totalChambres);
+
         if (totalChambres > 0) {
-            //parcourir la liste des chambres pour compter les Types
-            Map<String ,Integer> countByType = new HashMap<>();
+            Map<String, Integer> countByType = new HashMap<>();
+
             for (Chambre chambre : chambres) {
-                String type = String.valueOf(chambre.getTypeC());
+                String type = chambre.getTypeC().name();
                 countByType.put(type, countByType.getOrDefault(type, 0) + 1);
             }
-            // Calcul et affichage des pourcentages
-            log.info(" Pourcentage des chambres par type :");
-            for (Map.Entry<String, Integer> entry : countByType.entrySet()) {
-                String type = entry.getKey();
-                int count = entry.getValue();
-                double percentage = (count * 100.0) / totalChambres;
 
-                log.info("Type " + type + " : " + count + " chambres (" + String.format("%.2f", percentage) + "%)");
+            log.info("Pourcentage des chambres par type :");
+            for (Map.Entry<String, Integer> entry : countByType.entrySet()) {
+                double percentage = (entry.getValue() * 100.0) / totalChambres;
+                log.info("Type {} : {} chambres ({}%)",
+                        entry.getKey(),
+                        entry.getValue(),
+                        String.format("%.2f", percentage));
             }
         } else {
             log.warn("Aucune chambre trouvée !");
         }
+    }
+
+    // ================= MÉTHODE PRIVÉE =================
+
+    private int getCapacite(TypeChambre type) {
+        return switch (type) {
+            case SIMPLE -> 1;
+            case DOUBLE -> 2;
+            case TRIPLE -> 3;
+        };
     }
 }

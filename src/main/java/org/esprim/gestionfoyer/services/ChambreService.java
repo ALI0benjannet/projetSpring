@@ -25,4 +25,5 @@ public interface ChambreService {
     List<Chambre> getChambresParBlocEtType(long idBloc, TypeChambre typeC);
 
     void nbPlacesDisponibleParChambreAnneeEnCours();
+
 }
